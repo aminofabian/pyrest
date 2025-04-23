@@ -6,6 +6,15 @@
     <meta charset="utf-8">
     <title>Register</title>
     <link rel="stylesheet" href="{% static 'style.css' %}">
+    <style>
+      .error-message {
+        color: #ff0000;
+        font-size: 12px;
+        margin-top: -15px;
+        margin-bottom: 15px;
+        display: none;
+      }
+    </style>
   </head>
   <body>
     <div class="center">
@@ -21,47 +30,227 @@
           {% endfor %}
       {% endif %}
         
-      <form method="POST">
-
+      <form id="registrationForm" method="POST" onsubmit="return false;">
         {% csrf_token %}
       
         <div class="txt_field">
             <input type="text" required name="first_name">
             <span></span>
             <label>First Name</label>
-          </div>
-
-          <div class="txt_field">
-            <input type="text" required name="last_name">
-            <span></span>
-            <label>Last Name</label>
-          </div>
-
-        <div class="txt_field">
-          <input type="text" required name="username">
-          <span></span>
-          <label>Username</label>
         </div>
 
         <div class="txt_field">
-            <input type="email" required name="email">
+            <input type="text" required name="last_name">
             <span></span>
-            <label>Email</label>
-          </div>
+            <label>Last Name</label>
+        </div>
 
         <div class="txt_field">
-          <input type="password" required name="password">
+          <input type="text" required name="username" id="username">
+          <span></span>
+          <label>Username</label>
+        </div>
+        <div class="error-message" id="username-error"></div>
+
+        <div class="txt_field">
+            <input type="email" required name="email" id="email">
+            <span></span>
+            <label>Email</label>
+        </div>
+        <div class="error-message" id="email-error"></div>
+
+        <div class="txt_field">
+          <input type="password" required name="password" id="password">
           <span></span>
           <label>Password</label>
-        </div>    
+        </div>
+        <div class="error-message" id="password-error"></div>
+
+        <!-- Add password confirmation field -->
+        <div class="txt_field">
+          <input type="password" required name="confirm_password" id="confirm_password">
+          <span></span>
+          <label>Confirm Password</label>
+        </div>
+        <div class="error-message" id="confirm-password-error"></div>
 
         <!-- <div class="pass">Forgot Password?</div> -->
-        <input type="submit" value="Register">
+        <input type="button" value="Register" id="submitBtn">
         <div class="signup_link">
           Already have an account? <a href="{% url 'login' %}">Login</a>
         </div>
       </form>
     </div>
 
+    <script>
+      // Add this at the beginning of your script
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+
+      // Ensure CSRF token is included in AJAX requests
+      const csrftoken = getCookie('csrftoken');
+      
+      document.getElementById('registrationForm').addEventListener('submit', function(event) {
+        let hasError = false;
+        
+        // Username validation
+        const username = document.getElementById('username').value;
+        if (username.length < 4) {
+          document.getElementById('username-error').textContent = 'Username must be at least 4 characters long';
+          document.getElementById('username-error').style.display = 'block';
+          hasError = true;
+        } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+          document.getElementById('username-error').textContent = 'Username can only contain letters, numbers, and underscores';
+          document.getElementById('username-error').style.display = 'block';
+          hasError = true;
+        } else {
+          document.getElementById('username-error').style.display = 'none';
+        }
+        
+        // Email validation
+        const email = document.getElementById('email').value;
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(email)) {
+          document.getElementById('email-error').textContent = 'Please enter a valid email address';
+          document.getElementById('email-error').style.display = 'block';
+          hasError = true;
+        } else {
+          document.getElementById('email-error').style.display = 'none';
+        }
+        
+        // Password validation
+        const password = document.getElementById('password').value;
+        if (password.length < 8) {
+          document.getElementById('password-error').textContent = 'Password must be at least 8 characters long';
+          document.getElementById('password-error').style.display = 'block';
+          hasError = true;
+        } else if (!/[A-Z]/.test(password) || 
+                  !/[a-z]/.test(password) || 
+                  !/[0-9]/.test(password) || 
+                  !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+          document.getElementById('password-error').textContent = 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character';
+          document.getElementById('password-error').style.display = 'block';
+          hasError = true;
+        } else {
+          document.getElementById('password-error').style.display = 'none';
+        }
+        
+        // Confirm password validation
+        const confirmPassword = document.getElementById('confirm_password').value;
+        if (confirmPassword !== password) {
+          document.getElementById('confirm-password-error').textContent = 'Passwords do not match';
+          document.getElementById('confirm-password-error').style.display = 'block';
+          hasError = true;
+        } else {
+          document.getElementById('confirm-password-error').style.display = 'none';
+        }
+        
+        if (hasError) {
+          event.preventDefault();
+        }
+      });
+
+      document.getElementById('submitBtn').addEventListener('click', function() {
+        // Run validation
+        let hasError = false;
+        
+        // Username validation
+        const username = document.getElementById('username').value;
+        if (username.length < 4) {
+          document.getElementById('username-error').textContent = 'Username must be at least 4 characters long';
+          document.getElementById('username-error').style.display = 'block';
+          hasError = true;
+        } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+          document.getElementById('username-error').textContent = 'Username can only contain letters, numbers, and underscores';
+          document.getElementById('username-error').style.display = 'block';
+          hasError = true;
+        } else {
+          document.getElementById('username-error').style.display = 'none';
+        }
+        
+        // Email validation
+        const email = document.getElementById('email').value;
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(email)) {
+          document.getElementById('email-error').textContent = 'Please enter a valid email address';
+          document.getElementById('email-error').style.display = 'block';
+          hasError = true;
+        } else {
+          document.getElementById('email-error').style.display = 'none';
+        }
+        
+        // Password validation
+        const password = document.getElementById('password').value;
+        if (password.length < 8) {
+          document.getElementById('password-error').textContent = 'Password must be at least 8 characters long';
+          document.getElementById('password-error').style.display = 'block';
+          hasError = true;
+        } else if (!/[A-Z]/.test(password) || 
+                  !/[a-z]/.test(password) || 
+                  !/[0-9]/.test(password) || 
+                  !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+          document.getElementById('password-error').textContent = 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character';
+          document.getElementById('password-error').style.display = 'block';
+          hasError = true;
+        } else {
+          document.getElementById('password-error').style.display = 'none';
+        }
+        
+        // Confirm password validation
+        const confirmPassword = document.getElementById('confirm_password').value;
+        if (confirmPassword !== password) {
+          document.getElementById('confirm-password-error').textContent = 'Passwords do not match';
+          document.getElementById('confirm-password-error').style.display = 'block';
+          hasError = true;
+        } else {
+          document.getElementById('confirm-password-error').style.display = 'none';
+        }
+        
+        if (!hasError) {
+          // Get the CSRF token from the form
+          const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+          
+          // Create form data
+          const form = document.getElementById('registrationForm');
+          const formData = new FormData(form);
+          
+          // Submit the form using fetch
+          fetch('/register/', {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': csrftoken
+            },
+            body: formData,
+            credentials: 'same-origin'
+          })
+          .then(response => {
+            if (response.redirected) {
+              window.location.href = response.url;
+            } else if (response.ok) {
+              window.location.href = '/login/';
+            } else {
+              console.error('Registration failed');
+              alert('Registration failed. Please try again.');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred during registration.');
+          });
+        }
+      });
+    </script>
   </body>
 </html>

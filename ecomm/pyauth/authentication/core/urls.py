@@ -7,4 +7,6 @@ urlpatterns = [
     path('login/', views.LoginView, name='login'),
     path('logout/', views.LogoutView, name='logout'),
     path('forgot-password/', views.ForgotPasswordView, name='forgot-password'),
+    path('api/register/', views.api_register, name='api_register'),
+    path('dashboard/', views.Dashboard, name='dashboard'),
 ]

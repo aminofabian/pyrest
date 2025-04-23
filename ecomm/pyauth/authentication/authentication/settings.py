@@ -120,8 +120,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
-    # If your static files are in the app directory:
-    BASE_DIR / "authentication" / "static",
+    # Remove or fix this non-existent directory:
+    # BASE_DIR / "authentication" / "static",
 ]
 
 # For production
@@ -131,3 +131,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+LOGIN_URL = 'login'
+

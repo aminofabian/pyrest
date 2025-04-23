@@ -20,29 +20,77 @@
           {% endfor %}
       {% endif %}
         
-      <form method="POST">
-
+      <form id="loginForm" method="POST" onsubmit="return false;">
         {% csrf_token %}
-
         <div class="txt_field">
-          <input type="text" required name="username">
+          <input type="text" required id="username" name="username">
           <span></span>
-          <label>Username</label>
+          <label>Username or Email</label>
         </div>
-
         <div class="txt_field">
-          <input type="password" required name="password">
+          <input type="password" required id="password" name="password">
           <span></span>
           <label>Password</label>
         </div>
-
-        <input type="submit" value="Login">
+        <div class="pass">Forgot Password? <a href="{% url 'forgot-password' %}">Click Here</a></div>
+        <input type="button" value="Login" id="loginBtn">
         <div class="signup_link">
           Not a member? <a href="{% url 'register' %}">Signup</a>
-          <p>Forgot your Password? <a href="{% url 'forgot-password' %}">Reset Password</a></p> 
         </div>
       </form>
     </div>
 
+    <script>
+      // CSRF token handling
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+
+      // Super simple login approach - replace your existing click handler
+      document.getElementById('loginBtn').addEventListener('click', function() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        
+        console.log("Attempting to log in with username:", username);
+        
+        // Create a standard form submission
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/login/';  // Remove any query string
+        
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        const usernameInput = document.createElement('input');
+        usernameInput.type = 'hidden';
+        usernameInput.name = 'username';
+        usernameInput.value = username;
+        
+        const passwordInput = document.createElement('input');
+        passwordInput.type = 'hidden';
+        passwordInput.name = 'password';
+        passwordInput.value = password;
+        
+        form.appendChild(csrfInput);
+        form.appendChild(usernameInput);
+        form.appendChild(passwordInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+      });
+    </script>
   </body>
 </html>
