@@ -13,6 +13,10 @@ from django.urls import reverse
 from .models import *
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 import json
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from .utils import api_response
 
 
 # Create your views here.
@@ -235,6 +239,31 @@ def api_register(request):
             }, status=400)
     
     return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def dashboard_data(request):
+    # Example dashboard data
+    return Response(
+        api_response(
+            message="Dashboard data retrieved successfully",
+            data={
+                'stats': {
+                    'total_users': User.objects.count(),
+                    'revenue': 9850,
+                    'orders': 458,
+                    'visitors': 9254
+                },
+                'recent_activities': [
+                    {'user': 'John Doe', 'activity': 'Purchased Premium Plan', 'time': '10 min ago', 'status': 'completed'},
+                    {'user': 'Jane Smith', 'activity': 'Updated profile information', 'time': '1 hour ago', 'status': 'completed'},
+                    {'user': 'Robert Johnson', 'activity': 'Requested password reset', 'time': '3 hours ago', 'status': 'pending'},
+                    {'user': 'Emily Davis', 'activity': 'Created new account', 'time': '5 hours ago', 'status': 'completed'},
+                    {'user': 'Michael Wilson', 'activity': 'Submitted a support ticket', 'time': 'Yesterday', 'status': 'rejected'},
+                ]
+            }
+        )
+    )
 
 
 

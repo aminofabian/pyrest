@@ -9,4 +9,5 @@ urlpatterns = [
     path('forgot-password/', views.ForgotPasswordView, name='forgot-password'),
     path('api/register/', views.api_register, name='api_register'),
     path('dashboard/', views.Dashboard, name='dashboard'),
+    path('dashboard/data/', views.dashboard_data, name='dashboard_data'),
 ]

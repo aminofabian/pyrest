@@ -24,6 +24,7 @@ from django.urls import path
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),
+    path('api/', include('core.api_urls')),
 ]
 
 if settings.DEBUG:
